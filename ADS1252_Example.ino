@@ -33,26 +33,23 @@ void read_adc() {
   // wait for DRDY to pass and to reach start-point of DOUT
   delayMicroseconds(t_DRDY);
 
-  //confirm the pin is still low
-  if (digitalRead(ADC1_DOUTPIN) == LOW) {
-    //big banging to read in the adc 24 bits
-    for (uint8_t i = 0; i < ADC_BITS; ++i) {
-      delayMicroseconds(t);
-      digitalWrite(ADC1_SCLKPIN, HIGH);
-      delayMicroseconds(t);
-      ADC_readin <<= 1;
-      ADC_readin |= digitalRead(ADC1_DOUTPIN);
-      digitalWrite(ADC1_SCLKPIN, LOW);
-    }
-
-    //update global variable
-    ADC_readin <<= 8;          //get the signed value
-    ADC_readin /= 256;         //get 24-bit value back
-    ADC1_readin = ADC_readin;  //signed 24-bit value
-
-    intr_enabled = 0;
-    detachInterrupt(digitalPinToInterrupt(ADC1_DOUTPIN));
+  //big banging to read in the adc 24 bits
+  for (uint8_t i = 0; i < ADC_BITS; ++i) {
+    delayMicroseconds(t);
+    digitalWrite(ADC1_SCLKPIN, HIGH);
+    delayMicroseconds(t);
+    ADC_readin <<= 1;
+    ADC_readin |= digitalRead(ADC1_DOUTPIN);
+    digitalWrite(ADC1_SCLKPIN, LOW);
   }
+
+  //update global variable
+  ADC_readin <<= 8;          //get the signed value
+  ADC_readin /= 256;         //get 24-bit value back
+  ADC1_readin = ADC_readin;  //signed 24-bit value
+
+  intr_enabled = 0;
+  detachInterrupt(digitalPinToInterrupt(ADC1_DOUTPIN));
 }
 
 void setup() {
